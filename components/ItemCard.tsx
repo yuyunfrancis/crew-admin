@@ -2,11 +2,11 @@ import { FiEdit, FiTrash2 } from "react-icons/fi";
 import Button from "./Button";
 
 interface ItemCardProps {
-  id: number;
+  id: string;
   title: string;
   imageUrl?: string;
-  onEdit?: (id: number) => void;
-  onDelete?: (id: number) => void;
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 export default function ItemCard({

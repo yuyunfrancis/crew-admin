@@ -5,11 +5,20 @@ import { FiPlus, FiImage } from "react-icons/fi";
 import Button from "@/components/Button";
 import ItemCard from "@/components/ItemCard";
 import AddItemModal from "@/components/AddItemModal";
-import { getAllVibes, createVibe, deleteVibe, Vibe } from "@/lib/vibes";
+import EditItemModal from "@/components/EditItemModal";
+import {
+  getAllVibes,
+  createVibe,
+  updateVibe,
+  deleteVibe,
+  Vibe,
+} from "@/lib/vibes";
 
 export default function VibesPage() {
   const [vibes, setVibes] = useState<Vibe[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingVibe, setEditingVibe] = useState<Vibe | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -32,18 +41,42 @@ export default function VibesPage() {
     }
   };
 
-  const handleEdit = (id: number) => {
-    console.log("Edit vibe:", id);
-    // TODO: Implement edit functionality
+  const handleEdit = (id: string) => {
+    const vibeToEdit = vibes.find((vibe) => vibe._id === id);
+    if (vibeToEdit) {
+      setEditingVibe(vibeToEdit);
+      setShowEditModal(true);
+    }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     try {
-      await deleteVibe(id.toString());
-      setVibes(vibes.filter((vibe) => vibe._id !== id.toString()));
+      await deleteVibe(id);
+      setVibes(vibes.filter((vibe) => vibe._id !== id));
     } catch (error) {
       console.error("Error deleting vibe:", error);
       setError("Failed to delete vibe. Please try again.");
+    }
+  };
+
+  const handleEditVibe = async (data: { title: string; image?: File }) => {
+    if (!editingVibe) return;
+
+    try {
+      setError("");
+      const updatedVibe = await updateVibe(
+        editingVibe._id,
+        data.title,
+        data.image
+      );
+      setVibes(
+        vibes.map((vibe) => (vibe._id === editingVibe._id ? updatedVibe : vibe))
+      );
+      setShowEditModal(false);
+      setEditingVibe(null);
+    } catch (error) {
+      console.error("Error updating vibe:", error);
+      setError("Failed to update vibe. Please try again.");
     }
   };
 
@@ -117,7 +150,7 @@ export default function VibesPage() {
           {vibes.map((vibe) => (
             <ItemCard
               key={vibe._id}
-              id={parseInt(vibe._id)}
+              id={vibe._id} // Pass the string ID directly, no parseInt()
               title={vibe.title}
               imageUrl={vibe.imageUrl}
               onEdit={handleEdit}
@@ -150,6 +183,26 @@ export default function VibesPage() {
         onClose={() => setShowAddModal(false)}
         onSubmit={handleAddVibe}
         itemType="vibe"
+      />
+
+      {/* Edit Modal */}
+      <EditItemModal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingVibe(null);
+        }}
+        onSubmit={handleEditVibe}
+        itemType="vibe"
+        initialData={
+          editingVibe
+            ? {
+                id: editingVibe._id,
+                title: editingVibe.title,
+                imageUrl: editingVibe.imageUrl,
+              }
+            : null
+        }
       />
     </div>
   );

@@ -89,6 +89,7 @@ export async function updateHobby(id: string, title: string, image?: File): Prom
 export async function deleteHobby(id: string): Promise<void> {
   try {
     const token = getAuthToken();
+    console.log("Token used for deletion:", token);
     const response = await fetch(`${API_BASE_URL}/admin/hobbies/${id}`, {
       method: 'DELETE',
       headers: {

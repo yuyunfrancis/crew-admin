@@ -5,11 +5,20 @@ import { FiPlus, FiActivity } from "react-icons/fi";
 import Button from "@/components/Button";
 import ItemCard from "@/components/ItemCard";
 import AddItemModal from "@/components/AddItemModal";
-import { getAllHobbies, createHobby, deleteHobby, Hobby } from "@/lib/hobbies";
+import EditItemModal from "@/components/EditItemModal";
+import {
+  getAllHobbies,
+  createHobby,
+  updateHobby,
+  deleteHobby,
+  Hobby,
+} from "@/lib/hobbies";
 
 export default function HobbiesPage() {
   const [hobbies, setHobbies] = useState<Hobby[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingHobby, setEditingHobby] = useState<Hobby | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -32,17 +41,44 @@ export default function HobbiesPage() {
     }
   };
 
-  const handleEdit = (id: number) => {
-    console.log("Edit hobby:", id);
+  const handleEdit = (id: string) => {
+    const hobbyToEdit = hobbies.find((hobby) => hobby._id === id);
+    if (hobbyToEdit) {
+      setEditingHobby(hobbyToEdit);
+      setShowEditModal(true);
+    }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     try {
-      await deleteHobby(id.toString());
-      setHobbies(hobbies.filter((hobby) => hobby._id !== id.toString()));
+      await deleteHobby(id);
+      setHobbies(hobbies.filter((hobby) => hobby._id !== id));
     } catch (error) {
       console.error("Error deleting hobby:", error);
       setError("Failed to delete hobby. Please try again.");
+    }
+  };
+
+  const handleEditHobby = async (data: { title: string; image?: File }) => {
+    if (!editingHobby) return;
+
+    try {
+      setError("");
+      const updatedHobby = await updateHobby(
+        editingHobby._id,
+        data.title,
+        data.image
+      );
+      setHobbies(
+        hobbies.map((hobby) =>
+          hobby._id === editingHobby._id ? updatedHobby : hobby
+        )
+      );
+      setShowEditModal(false);
+      setEditingHobby(null);
+    } catch (error) {
+      console.error("Error updating hobby:", error);
+      setError("Failed to update hobby. Please try again.");
     }
   };
 
@@ -116,7 +152,7 @@ export default function HobbiesPage() {
           {hobbies.map((hobby) => (
             <ItemCard
               key={hobby._id}
-              id={parseInt(hobby._id)}
+              id={hobby._id} // Pass the string ID directly, no parseInt()
               title={hobby.title}
               imageUrl={hobby.imageUrl}
               onEdit={handleEdit}
@@ -149,6 +185,26 @@ export default function HobbiesPage() {
         onClose={() => setShowAddModal(false)}
         onSubmit={handleAddHobby}
         itemType="hobby"
+      />
+
+      {/* Edit Modal */}
+      <EditItemModal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingHobby(null);
+        }}
+        onSubmit={handleEditHobby}
+        itemType="hobby"
+        initialData={
+          editingHobby
+            ? {
+                id: editingHobby._id,
+                title: editingHobby.title,
+                imageUrl: editingHobby.imageUrl,
+              }
+            : null
+        }
       />
     </div>
   );

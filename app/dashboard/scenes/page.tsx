@@ -5,11 +5,20 @@ import { FiPlus, FiImage } from "react-icons/fi";
 import Button from "@/components/Button";
 import ItemCard from "@/components/ItemCard";
 import AddItemModal from "@/components/AddItemModal";
-import { getAllScenes, createScene, deleteScene, Scene } from "@/lib/scenes";
+import EditItemModal from "@/components/EditItemModal";
+import {
+  getAllScenes,
+  createScene,
+  updateScene,
+  deleteScene,
+  Scene,
+} from "@/lib/scenes";
 
 export default function ScenesPage() {
   const [scenes, setScenes] = useState<Scene[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingScene, setEditingScene] = useState<Scene | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -32,18 +41,45 @@ export default function ScenesPage() {
     }
   };
 
-  const handleEdit = (id: number) => {
-    console.log("Edit scene:", id);
-    // TODO: Implement edit functionality
+  const handleEdit = (id: string) => {
+    const sceneToEdit = scenes.find((scene) => scene._id === id);
+    if (sceneToEdit) {
+      setEditingScene(sceneToEdit);
+      setShowEditModal(true);
+    }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
+    // Changed from number to string
     try {
-      await deleteScene(id.toString());
-      setScenes(scenes.filter((scene) => scene._id !== id.toString()));
+      await deleteScene(id);
+      setScenes(scenes.filter((scene) => scene._id !== id));
     } catch (error) {
       console.error("Error deleting scene:", error);
       setError("Failed to delete scene. Please try again.");
+    }
+  };
+
+  const handleEditScene = async (data: { title: string; image?: File }) => {
+    if (!editingScene) return;
+
+    try {
+      setError("");
+      const updatedScene = await updateScene(
+        editingScene._id,
+        data.title,
+        data.image
+      );
+      setScenes(
+        scenes.map((scene) =>
+          scene._id === editingScene._id ? updatedScene : scene
+        )
+      );
+      setShowEditModal(false);
+      setEditingScene(null);
+    } catch (error) {
+      console.error("Error updating scene:", error);
+      setError("Failed to update scene. Please try again.");
     }
   };
 
@@ -117,7 +153,7 @@ export default function ScenesPage() {
           {scenes.map((scene) => (
             <ItemCard
               key={scene._id}
-              id={parseInt(scene._id)}
+              id={scene._id} // Pass the string ID directly, no parseInt()
               title={scene.title}
               imageUrl={scene.imageUrl}
               onEdit={handleEdit}
@@ -150,6 +186,26 @@ export default function ScenesPage() {
         onClose={() => setShowAddModal(false)}
         onSubmit={handleAddScene}
         itemType="scene"
+      />
+
+      {/* Edit Modal */}
+      <EditItemModal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingScene(null);
+        }}
+        onSubmit={handleEditScene}
+        itemType="scene"
+        initialData={
+          editingScene
+            ? {
+                id: editingScene._id,
+                title: editingScene.title,
+                imageUrl: editingScene.imageUrl,
+              }
+            : null
+        }
       />
     </div>
   );
