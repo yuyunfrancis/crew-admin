@@ -152,7 +152,7 @@ export default function AddItemModal({
                       Click to upload image
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
-                      PNG, JPG up to 10MB
+                      PNG, JPG up to 10MB (required for vibes)
                     </p>
                   </div>
                 </label>
