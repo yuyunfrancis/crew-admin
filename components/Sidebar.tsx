@@ -11,6 +11,8 @@ import {
   FiLogOut,
   FiMenu,
   FiX,
+  FiFileText,
+  FiShield,
 } from "react-icons/fi";
 
 const menuItems = [
@@ -18,6 +20,11 @@ const menuItems = [
   { href: "/dashboard/vibes", label: "Vibes", icon: FiHeart },
   { href: "/dashboard/scenes", label: "Scenes", icon: FiImage },
   { href: "/dashboard/hobbies", label: "Hobbies", icon: FiActivity },
+];
+
+const legalItems = [
+  { href: "/terms", label: "Terms & Conditions", icon: FiFileText },
+  { href: "/privacy", label: "Privacy Policy", icon: FiShield },
 ];
 
 export default function Sidebar() {
@@ -80,9 +87,12 @@ export default function Sidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-2">
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {menuItems.map((item) => {
             const Icon = item.icon;
+            const isActive =
+              pathname === item.href ||
+              (item.href !== "/dashboard" && pathname.startsWith(item.href));
 
             return (
               <Link
@@ -92,9 +102,7 @@ export default function Sidebar() {
                 className={`
                   flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200
                   ${
-                    pathname === item.href ||
-                    (item.href !== "/dashboard" &&
-                      pathname.startsWith(item.href))
+                    isActive
                       ? "bg-blue-50 text-blue-700 border border-blue-200"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }
@@ -102,11 +110,42 @@ export default function Sidebar() {
               >
                 <Icon
                   className={`w-5 h-5 ${
-                    pathname === item.href ||
-                    (item.href !== "/dashboard" &&
-                      pathname.startsWith(item.href))
-                      ? "text-blue-600"
-                      : "text-gray-400"
+                    isActive ? "text-blue-600" : "text-gray-400"
+                  }`}
+                />
+                <span className="font-medium">{item.label}</span>
+              </Link>
+            );
+          })}
+
+          {/* Legal Section Divider */}
+          <div className="pt-4 pb-1">
+            <p className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              Legal
+            </p>
+          </div>
+
+          {legalItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setIsOpen(false)}
+                className={`
+                  flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200
+                  ${
+                    isActive
+                      ? "bg-purple-50 text-purple-700 border border-purple-200"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  }
+                `}
+              >
+                <Icon
+                  className={`w-5 h-5 ${
+                    isActive ? "text-purple-600" : "text-gray-400"
                   }`}
                 />
                 <span className="font-medium">{item.label}</span>

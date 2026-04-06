@@ -50,7 +50,6 @@ export default function ScenesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    // Changed from number to string
     try {
       await deleteScene(id);
       setScenes(scenes.filter((scene) => scene._id !== id));
