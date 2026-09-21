@@ -13,6 +13,7 @@ import {
   FiX,
   FiFileText,
   FiShield,
+  FiUsers,
 } from "react-icons/fi";
 
 const menuItems = [
@@ -20,6 +21,7 @@ const menuItems = [
   { href: "/dashboard/vibes", label: "Vibes", icon: FiHeart },
   { href: "/dashboard/scenes", label: "Scenes", icon: FiImage },
   { href: "/dashboard/hobbies", label: "Hobbies", icon: FiActivity },
+  { href: "/dashboard/sample-profiles", label: "Sample Profiles", icon: FiUsers },
 ];
 
 const legalItems = [
