@@ -14,6 +14,7 @@ export interface SampleTile {
 export interface SampleProfile {
   _id: string;
   name: string;
+  bio: string;
   age: number;
   gender: 'male' | 'female' | 'other';
   tiles: SampleTile[];
@@ -23,6 +24,7 @@ export interface SampleProfile {
 
 export interface SampleProfileInput {
   name: string;
+  bio: string;
   age: number;
   gender: 'male' | 'female' | 'other';
   tiles: SampleTile[];

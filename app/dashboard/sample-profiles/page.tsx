@@ -18,12 +18,17 @@ const TILE_TYPES: SampleTileType[] = ["image", "text", "spotify", "emoji"];
 
 const emptyProfile = () => ({
   name: "",
+  bio: "",
   age: 24,
   gender: "male" as "male" | "female" | "other",
   order: 0,
   isActive: true,
   tiles: [] as SampleTile[],
 });
+
+// Shared input styling — dark, readable text with a soft placeholder.
+const inputCls =
+  "mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500";
 
 export default function SampleProfilesPage() {
   const [profiles, setProfiles] = useState<SampleProfile[]>([]);
@@ -61,6 +66,7 @@ export default function SampleProfilesPage() {
     setEditingId(p._id);
     setForm({
       name: p.name,
+      bio: p.bio ?? "",
       age: p.age,
       gender: p.gender,
       order: p.order,
@@ -172,6 +178,7 @@ export default function SampleProfilesPage() {
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="font-semibold text-gray-900">{p.name}</h3>
+                  {p.bio ? <p className="text-xs text-gray-500 italic">{p.bio}</p> : null}
                   <p className="text-sm text-gray-500">
                     {p.age} · {p.gender} · {p.tiles?.length ?? 0} tiles ·{" "}
                     <span className={p.isActive ? "text-green-600" : "text-gray-400"}>
@@ -239,16 +246,27 @@ export default function SampleProfilesPage() {
               <label className="col-span-2 text-sm">
                 <span className="text-gray-700">Name</span>
                 <input
-                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                  className={inputCls}
+                  placeholder="e.g. Jordan"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
+                />
+              </label>
+              <label className="col-span-2 text-sm">
+                <span className="text-gray-700">Bio</span>
+                <textarea
+                  className={inputCls}
+                  rows={2}
+                  placeholder="Short tagline shown under the name (optional)"
+                  value={form.bio}
+                  onChange={(e) => setForm({ ...form, bio: e.target.value })}
                 />
               </label>
               <label className="text-sm">
                 <span className="text-gray-700">Age</span>
                 <input
                   type="number"
-                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                  className={inputCls}
                   value={form.age}
                   onChange={(e) => setForm({ ...form, age: Number(e.target.value) })}
                 />
@@ -256,7 +274,7 @@ export default function SampleProfilesPage() {
               <label className="text-sm">
                 <span className="text-gray-700">Gender</span>
                 <select
-                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                  className={inputCls}
                   value={form.gender}
                   onChange={(e) => setForm({ ...form, gender: e.target.value as "male" | "female" | "other" })}
                 >
@@ -269,10 +287,13 @@ export default function SampleProfilesPage() {
                 <span className="text-gray-700">Order</span>
                 <input
                   type="number"
-                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                  className={inputCls}
                   value={form.order}
                   onChange={(e) => setForm({ ...form, order: Number(e.target.value) })}
                 />
+                <span className="block mt-1 text-xs text-gray-400">
+                  Display order — lower numbers show first when users tap “See Another”.
+                </span>
               </label>
               <label className="text-sm flex items-center gap-2 mt-6">
                 <input
@@ -280,7 +301,7 @@ export default function SampleProfilesPage() {
                   checked={form.isActive}
                   onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
                 />
-                <span className="text-gray-700">Active</span>
+                <span className="text-gray-700">Active (shown in the app)</span>
               </label>
             </div>
 
@@ -296,7 +317,7 @@ export default function SampleProfilesPage() {
                 {form.tiles.map((t, i) => (
                   <div key={i} className="border rounded-lg p-2 flex flex-wrap items-center gap-2">
                     <select
-                      className="border rounded px-2 py-1 text-sm"
+                      className="border border-gray-300 rounded px-2 py-1 text-sm text-gray-900"
                       value={t.type}
                       onChange={(e) => updateTile(i, { type: e.target.value as SampleTileType })}
                     >
@@ -325,7 +346,7 @@ export default function SampleProfilesPage() {
                       </div>
                     ) : (
                       <input
-                        className="border rounded px-2 py-1 text-sm flex-1 min-w-[120px]"
+                        className="border border-gray-300 rounded px-2 py-1 text-sm flex-1 min-w-[120px] text-gray-900 placeholder-gray-400"
                         placeholder={t.type === "emoji" ? "🏀" : "Text / label"}
                         value={t.content}
                         onChange={(e) => updateTile(i, { content: e.target.value })}
@@ -334,14 +355,14 @@ export default function SampleProfilesPage() {
 
                     <input
                       type="number"
-                      className="border rounded px-2 py-1 text-sm w-14"
+                      className="border border-gray-300 rounded px-2 py-1 text-sm w-14 text-gray-900"
                       title="width"
                       value={t.width}
                       onChange={(e) => updateTile(i, { width: Number(e.target.value) })}
                     />
                     <input
                       type="number"
-                      className="border rounded px-2 py-1 text-sm w-14"
+                      className="border border-gray-300 rounded px-2 py-1 text-sm w-14 text-gray-900"
                       title="height"
                       value={t.height}
                       onChange={(e) => updateTile(i, { height: Number(e.target.value) })}
